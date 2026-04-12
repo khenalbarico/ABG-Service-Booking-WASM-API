@@ -10,20 +10,20 @@ public sealed class PaymongoQrph(IPaymongoCfg _cfg) : IToolPaymentApi
     readonly HttpClient _httpClient = _cfg.CreatePaymongoClient();
 
     public async Task<PaymongoQrphChargeResult> CreateQrphChargeAsync(
-                 ClientRequest payload,
+                 ClientRequest req,
                  CancellationToken ct = default)
     {
-        var totalAmountPhp      = payload.ClientServices.Sum(x => x.ServiceCost);
+        var totalAmountPhp      = req.ClientServices.Sum(x => x.ServiceCost);
         var totalAmountCentavos = (int)Math.Round(totalAmountPhp * 100m, MidpointRounding.AwayFromZero);
-        string desc             = BuildDescription(payload);
+        string desc             = BuildDescription(req);
 
         var metadata = new Dictionary<string, string>
         {
-            ["client_booking_id"] = payload.ClientInformation.ClientBookingId ?? "",
-            ["customer_name"]     = $"{payload.ClientInformation.FirstName} {payload.ClientInformation.LastName}".Trim(),
-            ["customer_email"]    = payload.ClientInformation.Email ?? "",
-            ["service_count"]     = payload.ClientServices.Count.ToString(),
-            ["services"]          = string.Join(", ", payload.ClientServices.Select(s => $"{s.ServiceUid}:{s.ServiceName}"))
+            ["client_booking_id"] = req.ClientInformation.ClientBookingId ?? "",
+            ["customer_name"]     = $"{req.ClientInformation.FirstName} {req.ClientInformation.LastName}".Trim(),
+            ["customer_email"]    = req.ClientInformation.Email ?? "",
+            ["service_count"]     = req.ClientServices.Count.ToString(),
+            ["services"]          = string.Join(", ", req.ClientServices.Select(s => $"{s.ServiceUid}:{s.ServiceName}"))
         };
 
         var paymentIntentReq = new
@@ -59,9 +59,9 @@ public sealed class PaymongoQrph(IPaymongoCfg _cfg) : IToolPaymentApi
                     type = "qrph",
                     billing = new
                     {
-                        name = $"{payload.ClientInformation.FirstName} {payload.ClientInformation.LastName}".Trim(),
-                        email = payload.ClientInformation.Email,
-                        phone = payload.ClientInformation.ContactNumber,
+                        name = $"{req.ClientInformation.FirstName} {req.ClientInformation.LastName}".Trim(),
+                        email = req.ClientInformation.Email,
+                        phone = req.ClientInformation.ContactNumber,
                         address = new
                         {
                             line1 = "N/A",
