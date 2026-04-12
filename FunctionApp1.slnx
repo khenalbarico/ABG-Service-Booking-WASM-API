@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="CommonLib1/CommonLib1.csproj" Id="e38088f8-4d77-4999-a999-7565091bda21" />
+  <Project Path="FunctionApp1/FunctionApp1.csproj" />
+  <Project Path="LogicLib1/LogicLib1.csproj" />
+  <Project Path="ToolsLib1/ToolsLib1.csproj" />
+</Solution>
