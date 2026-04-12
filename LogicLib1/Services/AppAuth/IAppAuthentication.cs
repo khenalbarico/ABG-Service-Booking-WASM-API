@@ -1,8 +1,8 @@
-﻿using Firebase.Auth;
+﻿using CommonLib1.Models.Authentication;
 
 namespace LogicLib1.Services.AppAuth;
 
 public interface IAppAuthentication
 {
-    Task<UserCredential> LoginAsync(string email, string pass);
+    Task<AuthResp> LoginAsync(string email, string password);
 }

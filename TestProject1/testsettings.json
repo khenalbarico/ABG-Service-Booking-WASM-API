@@ -1,0 +1,32 @@
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "Firebase": {
+    "ApiKey": "AIzaSyANpcJxU-CQzjbqDeBmmxM93sFUbgG2HBM",
+    "AuthDomain": "abg-studios-booking-web.firebaseapp.com",
+    "DatabaseUrl": "https://abg-studios-booking-web-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "ProjectId": "learn-it-all-mobile-app",
+    "StorageBucket": "learn-it-all-mobile-app.firebasestorage.app",
+    "MessagingSenderId": "305193099933",
+    "AppId": "1:305193099933:web:ad8ba6ab96caea16266a74",
+    "MeasurementId": "G-MZFMW2BKWR"
+  },
+  "MailkitSmtp": {
+    "SenderEmail": "khenalbarico05@gmail.com",
+    "UserName": "khenalbarico05@gmail.com",
+    "SenderName": "ABG Studios",
+    "AppPassword": "vjmy akcv bzhm vmuc",
+    "SmtpHost": "smtp.gmail.com",
+    "SmtpPort": 587
+  },
+  "Paymongo": {
+    "SecretKey": "sk_live_9RwasWQPDqFciMiCiyL1N1Ut",
+    "BaseUrl": "https://api.paymongo.com/v1",
+    "WebhookSecretKey": "whsk_amVfmMDqttwpiZrmqgCM1mJe"
+  },
+  "AllowedHosts": "*"
+}

@@ -1,80 +1,41 @@
-﻿using LogicLib1.Services.AppDb;
-using LogicLib1.Services.AppSmtp;
+﻿using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
 using System.Text.Json;
 
 namespace LogicLib1.Services.ApiRelayer;
 
-public sealed class RelayDispatcher(IServiceProvider _services) : IRelayDispatcher
+public sealed class RelayDispatcher(
+    IServiceProvider     services,
+    RelayServiceRegistry registry) : IRelayDispatcher
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
         PropertyNameCaseInsensitive = true
     };
 
-    private static readonly Dictionary<string, Type> AllowedServices = new(StringComparer.Ordinal)
-    {
-        ["IAppDbOperator"] = typeof(IAppDbOperator),
-        ["IAppEmailer"] = typeof(IAppEmailer)
-    };
-
     public async Task<object?> DispatchAsync(RelayReq request, CancellationToken ct = default)
     {
-        if (string.IsNullOrWhiteSpace(request.ClassName))
-            throw new ArgumentException("ClassName is required.");
+        var serviceType = registry.Get(request.ClassName);
+        var service     = services.GetRequiredService(serviceType);
 
-        if (string.IsNullOrWhiteSpace(request.MethodName))
-            throw new ArgumentException("MethodName is required.");
+        var method = serviceType
+            .GetMethods()
+            .FirstOrDefault(m => m.Name == request.MethodName)
+            ?? throw new InvalidOperationException(
+                $"Method '{request.MethodName}' was not found on '{request.ClassName}'.");
 
-        if (!AllowedServices.TryGetValue(request.ClassName, out var serviceType))
-            throw new ArgumentException($"Unsupported class: {request.ClassName}");
+        var result = method.Invoke(service, BuildArguments(method, request.Payload, ct));
 
-        var service = _services.GetService(serviceType)
-            ?? throw new InvalidOperationException($"Service not registered: {request.ClassName}");
-
-        var method = FindMethod(serviceType, request.MethodName)
-            ?? throw new ArgumentException($"Method not found: {request.ClassName}.{request.MethodName}");
-
-        var args = BuildArguments(method, request.Payload, ct);
-
-        var invocationResult = method.Invoke(service, args);
-
-        if (invocationResult is Task task)
+        if (result is Task task)
         {
             await task;
 
-            var taskType = task.GetType();
-            if (taskType.IsGenericType)
-            {
-                return taskType.GetProperty("Result")?.GetValue(task);
-            }
-
-            return null;
+            return task.GetType().IsGenericType
+                ? task.GetType().GetProperty("Result")?.GetValue(task)
+                : null;
         }
 
-        return invocationResult;
-    }
-
-    private static MethodInfo? FindMethod(Type serviceType, string methodName)
-    {
-        return serviceType
-            .GetMethods()
-            .FirstOrDefault(m =>
-                string.Equals(m.Name, methodName, StringComparison.Ordinal) &&
-                IsSupportedSignature(m));
-    }
-
-    private static bool IsSupportedSignature(MethodInfo method)
-    {
-        var parameters = method.GetParameters();
-
-        return parameters.Length switch
-        {
-            0 => true,
-            1 => parameters[0].ParameterType != typeof(CancellationToken),
-            2 => parameters[1].ParameterType == typeof(CancellationToken),
-            _ => false
-        };
+        return result;
     }
 
     private static object?[] BuildArguments(MethodInfo method, JsonElement? payload, CancellationToken ct)
@@ -84,31 +45,48 @@ public sealed class RelayDispatcher(IServiceProvider _services) : IRelayDispatch
         if (parameters.Length == 0)
             return [];
 
-        if (parameters.Length == 1)
-        {
-            if (parameters[0].ParameterType == typeof(CancellationToken))
-                return [ct];
+        var args = new object?[parameters.Length];
+        var payloadProperties = GetPayloadProperties(payload);
 
-            return [DeserializePayload(payload, parameters[0].ParameterType)];
+        for (var i = 0; i < parameters.Length; i++)
+        {
+            var parameter = parameters[i];
+
+            if (parameter.ParameterType == typeof(CancellationToken))
+            {
+                args[i] = ct;
+                continue;
+            }
+
+            if (parameters.Length == 1)
+            {
+                args[i] = DeserializePayload(payload, parameter.ParameterType);
+                continue;
+            }
+
+            if (!payloadProperties.TryGetValue(parameter.Name!, out var value))
+                throw new InvalidOperationException(
+                    $"Payload property '{parameter.Name}' was not found for method '{method.Name}'.");
+
+            args[i] = value.Deserialize(parameter.ParameterType, JsonOptions);
         }
 
-        return
-        [
-            DeserializePayload(payload, parameters[0].ParameterType),
-            ct
-        ];
+        return args;
     }
 
-    private static object? DeserializePayload(JsonElement? payload, Type targetType)
+    private static Dictionary<string, JsonElement> GetPayloadProperties(JsonElement? payload)
     {
-        if (payload is null)
-        {
-            if (targetType.IsValueType && Nullable.GetUnderlyingType(targetType) is null)
-                throw new ArgumentException($"Payload is required for type {targetType.Name}.");
+        if (payload is null || payload.Value.ValueKind != JsonValueKind.Object)
+            return new Dictionary<string, JsonElement>(StringComparer.OrdinalIgnoreCase);
 
-            return null;
-        }
-
-        return payload.Value.Deserialize(targetType, JsonOptions);
+        return payload.Value
+            .EnumerateObject()
+            .ToDictionary(
+                p => p.Name,
+                p => p.Value,
+                StringComparer.OrdinalIgnoreCase);
     }
+
+    private static object? DeserializePayload(JsonElement? payload, Type targetType) =>
+        payload?.Deserialize(targetType, JsonOptions);
 }

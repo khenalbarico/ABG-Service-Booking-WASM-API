@@ -2,7 +2,6 @@
 using CommonLib1.Models.Client;
 using CommonLib1.Models.Schedules;
 using CommonLib1.Models.Service;
-using LogicLib1.Helpers;
 using System.Globalization;
 using ToolsLib1.FirebaseTools;
 

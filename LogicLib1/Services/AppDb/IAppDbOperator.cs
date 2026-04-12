@@ -10,7 +10,7 @@ public interface IAppDbOperator
     Task<ServiceCollectionResp> GetServicesAsync();
     Task PostClientRequestAsync(ClientRequest req);
     Task<List<ClientRequest>> GetClientRequestsAsync();
-    Task DeleteServiceAsync(string serviceName, string serviceUid);
+    Task DeleteServiceAsync(string category, string serviceUid);
     Task<List<ApptSchedRec>> GetAppointmentSchedulesAsync();
     Task SaveServiceAsync(string category, BaseSvcStructure service);
 }

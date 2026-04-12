@@ -1,15 +1,15 @@
-﻿using Firebase.Auth;
+﻿using CommonLib1.Models.Authentication;
 using ToolsLib1.FirebaseTools;
 
 namespace LogicLib1.Services.AppAuth;
 
 public class AppAuthentication(IToolFirebaseAuth _authClient) : IAppAuthentication
 {
-    public async Task<UserCredential> LoginAsync(string email, string pass)
+    public async Task<AuthResp> LoginAsync(string email, string password)
     {
         try
         {
-            var resp = await _authClient.SignInAsync(email, pass);
+            var resp = await _authClient.SignInAsync(email, password);
 
             return resp;
         }

@@ -1,10 +1,11 @@
-﻿using Firebase.Auth;
+﻿using CommonLib1.Models.Authentication;
+using Firebase.Auth;
 
 namespace ToolsLib1.FirebaseTools;
 
 public interface IToolFirebaseAuth
 {
-    Task<UserCredential> SignInAsync(
+    Task<AuthResp> SignInAsync(
         string email,
         string password);
     Task SignUpAsync(

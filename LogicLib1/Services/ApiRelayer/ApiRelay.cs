@@ -18,18 +18,15 @@ public sealed class ApiRelay(IRelayDispatcher dispatcher) : IApiRelay
         try
         {
             var relayReq = await JsonSerializer.DeserializeAsync<RelayReq>(req.Body, JsonOptions, ct)
-                ?? throw new ArgumentException("Invalid relay request.");
+                ?? throw new InvalidOperationException("Request body is required.");
 
             var result = await dispatcher.DispatchAsync(relayReq, ct);
 
             var resp = req.CreateResponse(HttpStatusCode.OK);
+
             await resp.WriteAsJsonAsync(result, ct);
 
             return resp;
-        }
-        catch (ArgumentException ex)
-        {
-            return await req.CreateTextResponse(HttpStatusCode.BadRequest, ex.Message);
         }
         catch (TargetInvocationException ex) when (ex.InnerException is not null)
         {

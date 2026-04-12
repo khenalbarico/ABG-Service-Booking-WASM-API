@@ -28,26 +28,30 @@ public static class SvcRegistry
     }
 
     public static void AddSvcRegistry(
-           this   IServiceCollection svc,
+           this IServiceCollection svc,
                   IConfiguration cfg)
     {
         svc.AddHttpClient();
 
-        //AppCfg Registry
         svc.AddAppCfg(cfg);
+        svc.AddRelayServices();
 
-        //App Logic Registry
-        svc.AddSingleton<IAppDbOperator, AppDbOperator>();
-        svc.AddSingleton<IAppEmailer, AppEmailer>();
-        svc.AddSingleton<IAppAuthentication, AppAuthentication>();
         svc.AddSingleton<IApiRelay, ApiRelay>();
         svc.AddSingleton<IRelayDispatcher, RelayDispatcher>();
-
-        //Tool Registry
-        svc.AddSingleton<IToolPaymentApi, PaymongoQrph>();
-        svc.AddSingleton<IToolFirebaseDbOperations, FirebaseRealtimeDb1>();
-        svc.AddSingleton<IToolEmailer, MailkitSmtpClient>();
-        svc.AddSingleton<IToolFirebaseAuth, FirebaseAuth>();
     }
 
+    public static void AddRelayServices(
+           this IServiceCollection svc)
+    {
+        var relayRegistry = new RelayServiceRegistry();
+        svc.AddSingleton(relayRegistry);
+
+        svc.AddRelaySingleton<IAppDbOperator, AppDbOperator>(relayRegistry);
+        svc.AddRelaySingleton<IAppEmailer, AppEmailer>(relayRegistry);
+        svc.AddRelaySingleton<IAppAuthentication, AppAuthentication>(relayRegistry);
+        svc.AddRelaySingleton<IToolPaymentApi, PaymongoQrph>(relayRegistry);
+        svc.AddRelaySingleton<IToolFirebaseDbOperations, FirebaseRealtimeDb1>(relayRegistry);
+        svc.AddRelaySingleton<IToolEmailer, MailkitSmtpClient>(relayRegistry);
+        svc.AddRelaySingleton<IToolFirebaseAuth, FirebaseAuth>(relayRegistry);
+    }
 }

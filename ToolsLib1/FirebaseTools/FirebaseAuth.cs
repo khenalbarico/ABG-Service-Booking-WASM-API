@@ -1,4 +1,5 @@
-﻿using Firebase.Auth;
+﻿using CommonLib1.Models.Authentication;
+using Firebase.Auth;
 using System.Text;
 using System.Text.Json;
 
@@ -8,7 +9,7 @@ public class FirebaseAuth(IFirebaseCfg _cfg, HttpClient _httpClient) : IToolFire
 {
     readonly FirebaseAuthClient _authClient = _cfg.CreateAuthClient();
 
-    public async Task<UserCredential> SignInAsync(
+    public async Task<AuthResp> SignInAsync(
         string email,
         string password)
     {
@@ -20,7 +21,12 @@ public class FirebaseAuth(IFirebaseCfg _cfg, HttpClient _httpClient) : IToolFire
         //    throw new Exception("Email's not yet verified. Please verify the email first.");
         //}
 
-        return res;
+        return new AuthResp
+        {
+            Uid             = res.User.Uid,
+            Email           = res.User.Info.Email,
+            IsAuthenticated = true
+        };
     }
 
     public async Task SignUpAsync(

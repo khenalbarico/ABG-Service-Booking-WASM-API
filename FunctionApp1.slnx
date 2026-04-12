@@ -2,5 +2,6 @@
   <Project Path="CommonLib1/CommonLib1.csproj" Id="e38088f8-4d77-4999-a999-7565091bda21" />
   <Project Path="FunctionApp1/FunctionApp1.csproj" />
   <Project Path="LogicLib1/LogicLib1.csproj" />
+  <Project Path="TestProject1/TestProject1.csproj" Id="de5c5647-31fa-49d0-ad07-51b0830bf7de" />
   <Project Path="ToolsLib1/ToolsLib1.csproj" />
 </Solution>
