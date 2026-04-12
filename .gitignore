@@ -48,3 +48,4 @@ coverage/
 *.tmp
 *.temp
 /CommonLib1/appsettings.json
+/TestProject1/testsettings.json
