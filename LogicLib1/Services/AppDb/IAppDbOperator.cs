@@ -13,4 +13,6 @@ public interface IAppDbOperator
     Task DeleteServiceAsync(string category, string serviceUid);
     Task<List<ApptSchedRec>> GetAppointmentSchedulesAsync();
     Task SaveServiceAsync(string category, BaseSvcStructure service);
+    Task PostScheduleCfgAsync(ScheduleCfg cfg);
+    Task<ScheduleCfg> GetScheduleCfgAsync();
 }

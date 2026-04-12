@@ -184,4 +184,16 @@ public class AppDbOperator(IToolFirebaseDbOperations _dbOperations) : IAppDbOper
 
         return clientRequests;
     }
+
+    public async Task PostScheduleCfgAsync(ScheduleCfg cfg)
+    {
+        await _dbOperations.PatchAsync(cfg, "ScheduleConfig");
+    }
+
+    public async Task<ScheduleCfg> GetScheduleCfgAsync()
+    {
+        var scheduleCfg = await _dbOperations.GetAsync<ScheduleCfg>("ScheduleConfig");
+
+        return scheduleCfg;
+    }
 }
