@@ -18,13 +18,15 @@ public class AppDbOperator(
         var lashes   = await _dbOperations.GetListAsync<LashesService>("Services", "Lash");
         var eyebrows = await _dbOperations.GetListAsync<EyebrowsService>("Services", "Eyebrows");
         var footspa  = await _dbOperations.GetListAsync<FootspaService>("Services", "Footspa");
+        var pedicure = await _dbOperations.GetListAsync<PedicureService>("Services", "Pedicure");
 
         return new ServiceCollectionResp
         {
             Nails    = nails,
             Lashes   = lashes,
             Eyebrows = eyebrows,
-            Footspa  = footspa
+            Footspa  = footspa,
+            Pedicure = pedicure
         };
     }
 
@@ -83,6 +85,10 @@ public class AppDbOperator(
                 await _dbOperations.DeleteAsync("Services", "Footspa", serviceUid);
                 break;
 
+            case "Pedicure":
+                await _dbOperations.DeleteAsync("Services", "Pedicure", serviceUid);
+                break;
+
             default:
                 throw new InvalidOperationException($"Unsupported service category: {category}");
         }
@@ -134,6 +140,17 @@ public class AppDbOperator(
                     Designs       = service.Designs ?? [],
                     ScheduleSlots = service.ScheduleSlots ?? new BaseSchedSlot()
                 }, "Services", "Footspa", service.Uid);
+                break;
+
+            case "Pedicure":
+                await _dbOperations.PatchAsync(new PedicureService
+                {
+                    Uid           = service.Uid,
+                    Details       = service.Details,
+                    Cost          = service.Cost,
+                    Designs       = service.Designs ?? [],
+                    ScheduleSlots = service.ScheduleSlots ?? new BaseSchedSlot()
+                }, "Services", "Pedicure", service.Uid);
                 break;
 
             default:
