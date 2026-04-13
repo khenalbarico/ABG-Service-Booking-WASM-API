@@ -14,23 +14,23 @@ public class ClientReqAdder1(ITestOutputHelper _ctx)
         {
             ClientInformation = new ClientInformation
             {
-                ClientBookingId = "PeterBookingId2",
-                Email = "sample2@test.com",
+                ClientBookingId = "PeterBookingId",
+                Email = "sample@test.com",
                 ContactNumber = "0961454252",
-                FirstName = "Khen1",
-                LastName = "Albarico1",
+                FirstName = "Khen",
+                LastName = "Albarico",
                 BookingDate = DateTime.Now
             },
             ClientServices =
             [
                 new() {
-                    ServiceUid = "ServiceUid2",
-                    ServiceName = "Nails",
-                    ServiceDesign = "Complex",
-                    ServiceDetails = "SOFTGEL EXTENSION",
+                    ServiceUid = "ServiceUid",
+                    ServiceName = "Footspa",
+                    ServiceDesign = "",
+                    ServiceDetails = "Sample Footpsa",
                     ServiceCost = 1,
-                    Branch = ServiceBranch.Anabu,
-                    ServiceDate = new DateTime(2026, 4, 16, 15, 0, 0)
+                    Branch = ServiceBranch.Manila,
+                    ServiceDate = new DateTime(2026, 4, 17, 15, 0, 0)
                 }
             ],
             Status = ClientStatus.Pending

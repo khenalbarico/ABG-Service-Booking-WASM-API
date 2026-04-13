@@ -2,6 +2,7 @@
 
 public enum BookingServiceBucket
 {
-    Nails         = 1,
-    OtherServices = 2
+    Nails                    = 1,
+    FootspaPedicureExclusive = 2,
+    OtherServices            = 3
 }
