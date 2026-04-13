@@ -2,12 +2,15 @@
 using CommonLib1.Models.Client;
 using CommonLib1.Models.Schedules;
 using CommonLib1.Models.Service;
-using System.Globalization;
+using LogicLib1.Helpers.Schedule;
+using LogicLib1.Services.AppBooking;
 using ToolsLib1.FirebaseTools;
 
 namespace LogicLib1.Services.AppDb;
 
-public class AppDbOperator(IToolFirebaseDbOperations _dbOperations) : IAppDbOperator
+public class AppDbOperator(
+    IToolFirebaseDbOperations _dbOperations,
+    IBookingCapacity          _bookingCapacity) : IAppDbOperator
 {
     public async Task<ServiceCollectionResp> GetServicesAsync()
     {
@@ -27,16 +30,17 @@ public class AppDbOperator(IToolFirebaseDbOperations _dbOperations) : IAppDbOper
 
     public async Task PostClientRequestAsync(ClientRequest req)
     {
+        await _bookingCapacity.ValidateAvailabilityAsync(req);
+
         var bookingId = req.ClientInformation.ClientBookingId;
 
         await _dbOperations.PatchAsync(req, "ClientRequests", bookingId);
 
-        var groupedServices = (req.ClientServices ?? [])
-            .GroupBy(x => x.ServiceDate);
+        var groupedServices = (req.ClientServices ?? []).GroupBy(x => x.ServiceDate);
 
         foreach (var group in groupedServices)
         {
-            var serviceDateKey = group.Key.ToString("yyyy-MM-ddTHH:mm:ss");
+            var serviceDateKey = group.Key.ToServiceDateKey();
 
             var scheduleEntry = new ApptSchedBooking
             {
@@ -51,10 +55,10 @@ public class AppDbOperator(IToolFirebaseDbOperations _dbOperations) : IAppDbOper
             };
 
             await _dbOperations.PatchAsync(
-                  scheduleEntry,
-                  "AppointmentSchedules",
-                  serviceDateKey,
-                  bookingId
+                scheduleEntry,
+                "AppointmentSchedules",
+                serviceDateKey,
+                bookingId
             );
         }
     }
@@ -149,15 +153,8 @@ public class AppDbOperator(IToolFirebaseDbOperations _dbOperations) : IAppDbOper
 
         foreach (var scheduleDate in rawSchedules)
         {
-            if (!DateTime.TryParseExact(
-                    scheduleDate.Key,
-                    "yyyy-MM-ddTHH:mm:ss",
-                    CultureInfo.InvariantCulture,
-                    DateTimeStyles.None,
-                    out var parsedDate))
-            {
+            if (!scheduleDate.Key.TryParseServiceDateKey(out var parsedDate))
                 continue;
-            }
 
             var bookings = scheduleDate.Value ?? [];
 
@@ -179,21 +176,12 @@ public class AppDbOperator(IToolFirebaseDbOperations _dbOperations) : IAppDbOper
     }
 
     public async Task<List<ClientRequest>> GetClientRequestsAsync()
-    {
-        var clientRequests = await _dbOperations.GetListAsync<ClientRequest>("ClientRequests");
-
-        return clientRequests;
-    }
+    => await _dbOperations.GetListAsync<ClientRequest>("ClientRequests");
 
     public async Task PostScheduleCfgAsync(ScheduleCfg cfg)
-    {
-        await _dbOperations.PatchAsync(cfg, "ScheduleConfig");
-    }
-
+    => await _dbOperations.PatchAsync(cfg, "ScheduleConfig");
+    
     public async Task<ScheduleCfg> GetScheduleCfgAsync()
-    {
-        var scheduleCfg = await _dbOperations.GetAsync<ScheduleCfg>("ScheduleConfig");
-
-        return scheduleCfg;
-    }
+    => await _dbOperations.GetAsync<ScheduleCfg>("ScheduleConfig");
+    
 }

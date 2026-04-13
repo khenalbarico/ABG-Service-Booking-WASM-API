@@ -30,4 +30,11 @@ public class ScheduleCfgFacts1 (ITestOutputHelper _ctx)
 
         await _sut.PostScheduleCfgAsync(scheduleCfg);
     }
+
+    [Fact] public async Task Get_Schedule_Configuration()
+    {
+        var _sut = _ctx.Get<IAppDbOperator>();
+
+        var res  = await _sut.GetScheduleCfgAsync();
+    }
 }

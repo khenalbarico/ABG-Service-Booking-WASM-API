@@ -6,9 +6,9 @@ namespace ToolsLib1.PaymentApi;
 public interface IToolPaymentApi
 {
     Task<PaymongoQrphChargeResult> CreateQrphChargeAsync(
-         ClientRequest req,
+         ClientRequest     req,
          CancellationToken ct = default);
     Task<string> GetPaymentIntentStatusAsync(
-         string paymentIntentId,
+         string            paymentIntentId,
          CancellationToken ct = default);
 }

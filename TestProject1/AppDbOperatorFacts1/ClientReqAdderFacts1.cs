@@ -40,4 +40,11 @@ public class ClientReqAdder1(ITestOutputHelper _ctx)
 
         await _sut.PostClientRequestAsync(payload);
     }
+
+    [Fact] public async Task Get_Client_Req()
+    {
+        var _sut = _ctx.Get<IAppDbOperator>();
+
+        var res  = _sut.GetClientRequestsAsync();
+    }
 }

@@ -1,5 +1,6 @@
 ﻿using LogicLib1.Services.ApiRelayer;
 using LogicLib1.Services.AppAuth;
+using LogicLib1.Services.AppBooking;
 using LogicLib1.Services.AppDb;
 using LogicLib1.Services.AppSmtp;
 using Microsoft.Extensions.Configuration;
@@ -38,6 +39,7 @@ public static class SvcRegistry
 
         svc.AddSingleton<IApiRelay, ApiRelay>();
         svc.AddSingleton<IRelayDispatcher, RelayDispatcher>();
+        svc.AddSingleton<IBookingCapacity, BookingCapacity>();
     }
 
     public static void AddRelayServices(

@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Xunit.Abstractions;
 using ToolsLib1.FirebaseTools;
 using LogicLib1.Services.AppDb;
+using LogicLib1.Services.AppBooking;
 
 namespace TestProject1.TestHelpers;
 
@@ -26,6 +27,7 @@ internal static class TestOutputHelperExtensions
                 services.AddAppCfg(context.Configuration);
                 services.AddSingleton<IToolFirebaseDbOperations, FirebaseRealtimeDb1>();
                 services.AddSingleton<IAppDbOperator, AppDbOperator>();
+                services.AddSingleton<IBookingCapacity, BookingCapacity>();
             })
             .Build();
 
