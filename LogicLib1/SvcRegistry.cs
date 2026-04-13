@@ -39,7 +39,6 @@ public static class SvcRegistry
 
         svc.AddSingleton<IApiRelay, ApiRelay>();
         svc.AddSingleton<IRelayDispatcher, RelayDispatcher>();
-        svc.AddSingleton<IBookingCapacity, BookingCapacity>();
     }
 
     public static void AddRelayServices(
@@ -55,5 +54,6 @@ public static class SvcRegistry
         svc.AddRelaySingleton<IToolFirebaseDbOperations, FirebaseRealtimeDb1>(relayRegistry);
         svc.AddRelaySingleton<IToolEmailer, MailkitSmtpClient>(relayRegistry);
         svc.AddRelaySingleton<IToolFirebaseAuth, FirebaseAuth>(relayRegistry);
+        svc.AddRelaySingleton<IBookingCapacity, BookingCapacity>(relayRegistry);
     }
 }
