@@ -8,21 +8,17 @@ namespace ToolsLib1.EmailerTools;
 public static class MailFactory
 {
     public static string ComposeMailBody(
-           this string body,
+           this string   body,
            ClientRequest req)
     {
-        var client = req.ClientInformation;
+        var client   = req.ClientInformation;
         var services = req.ClientServices ?? [];
 
-        var fullName = $"{client?.FirstName} {client?.LastName}".Trim();
+        var fullName  = $"{client?.FirstName} {client?.LastName}".Trim();
         var totalCost = services.Sum(x => x.ServiceCost);
 
-        var bookingId = client?.ClientBookingId ?? string.Empty;
+        var bookingId   = client?.ClientBookingId ?? string.Empty;
         var bookingDate = client?.BookingDate ?? DateTime.MinValue;
-
-        var primaryService = services
-            .OrderBy(x => x.ServiceDate)
-            .FirstOrDefault();
 
         var servicesHtml = new StringBuilder();
 
@@ -118,41 +114,18 @@ public static class MailFactory
                             <table role='presentation' width='100%' cellpadding='0' cellspacing='0' border='0' style='margin-bottom:28px; border:1px dashed #000000;'>
                                 <tr>
                                     <td style='padding:22px 24px;'>
-                                        <table role='presentation' width='100%' cellpadding='0' cellspacing='0' border='0'>
-                                            <tr>
-                                                <td style='vertical-align:top; padding-right:20px;'>
-                                                    <div style='font-size:12px; font-weight:bold; color:#555555; letter-spacing:1px; text-transform:uppercase; margin-bottom:8px;'>
-                                                        Booking Ticket
-                                                    </div>
-                                                    <div style='font-size:24px; font-weight:bold; color:#000000; margin-bottom:10px;'>
-                                                        {Encode(fullName)}
-                                                    </div>
-                                                    <div style='font-size:14px; line-height:1.8; color:#222222;'>
-                                                        <strong>Booking ID:</strong> {Encode(bookingId)}<br/>
-                                                        <strong>Booking Date:</strong> {BookingDateDisplay(bookingDate)}<br/>
-                                                        <strong>Total Services:</strong> {services.Count}<br/>
-                                                        <strong>Total Amount:</strong> ₱{totalCost:N2}
-                                                    </div>
-                                                </td>
-                                                <td align='right' style='vertical-align:top;'>
-                                                    <table role='presentation' cellpadding='0' cellspacing='0' border='0' style='min-width:220px; border:1px solid #000000;'>
-                                                        <tr>
-                                                            <td style='background-color:#000000; color:#ffffff; padding:10px 14px; font-size:12px; font-weight:bold; text-transform:uppercase; letter-spacing:1px;'>
-                                                                Counter Copy
-                                                            </td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td style='padding:14px; font-size:13px; line-height:1.8; color:#222222;'>
-                                                                <strong>Service:</strong> {Encode(services.Count > 1 ? "Multi-Service Appointment" : primaryService?.ServiceName ?? "Appointment")}<br/>
-                                                                <strong>Date:</strong> {(primaryService == null ? "N/A" : $"{primaryService.ServiceDate:MMMM d, yyyy}")}<br/>
-                                                                <strong>Time:</strong> {(primaryService == null ? "N/A" : $"{primaryService.ServiceDate:h:mm tt}")}<br/>
-                                                                <strong>Branch:</strong> {Encode(primaryService == null ? "N/A" : GetBranchDisplay(primaryService.Branch))}
-                                                            </td>
-                                                        </tr>
-                                                    </table>
-                                                </td>
-                                            </tr>
-                                        </table>
+                                        <div style='font-size:12px; font-weight:bold; color:#555555; letter-spacing:1px; text-transform:uppercase; margin-bottom:8px;'>
+                                            Booking Details
+                                        </div>
+                                        <div style='font-size:24px; font-weight:bold; color:#000000; margin-bottom:10px;'>
+                                            {Encode(fullName)}
+                                        </div>
+                                        <div style='font-size:14px; line-height:1.8; color:#222222;'>
+                                            <strong>Booking ID:</strong> {Encode(bookingId)}<br/>
+                                            <strong>Booking Date:</strong> {BookingDateDisplay(bookingDate)}<br/>
+                                            <strong>Total Services:</strong> {services.Count}<br/>
+                                            <strong>Total Amount:</strong> ₱{totalCost:N2}
+                                        </div>
                                     </td>
                                 </tr>
                             </table>
@@ -216,9 +189,6 @@ public static class MailFactory
         => value == DateTime.MinValue
             ? "N/A"
             : $"{value:MMMM d, yyyy}, {value:dddd}, {value:h:mm tt}";
-
-    private static string ServiceDateDisplay(DateTime value)
-        => $"{value:MMMM d, yyyy}, {value:dddd}, {value:h:mm tt}";
 
     private static string GetBranchDisplay(ServiceBranch branch)
         => BranchNames.TryGetValue(branch, out var branchName)
