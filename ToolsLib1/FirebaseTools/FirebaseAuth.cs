@@ -7,13 +7,12 @@ namespace ToolsLib1.FirebaseTools;
 
 public class FirebaseAuth(IFirebaseCfg _cfg, HttpClient _httpClient) : IToolFirebaseAuth
 {
-    readonly FirebaseAuthClient _authClient = _cfg.CreateAuthClient();
-
     public async Task<AuthResp> SignInAsync(
         string email,
         string password)
     {
-        var res = await _authClient.SignInWithEmailAndPasswordAsync(email, password);
+        var _authClient = _cfg.CreateAuthClient();
+        var res         = await _authClient.SignInWithEmailAndPasswordAsync(email, password);
 
         //if (!res.User.Info.IsEmailVerified)
         //{
@@ -33,9 +32,9 @@ public class FirebaseAuth(IFirebaseCfg _cfg, HttpClient _httpClient) : IToolFire
         string email,
         string password)
     {
-        var res = await _authClient.CreateUserWithEmailAndPasswordAsync(email, password);
-
-        var token = await res.User.GetIdTokenAsync();
+        var _authClient = _cfg.CreateAuthClient();
+        var res         = await _authClient.CreateUserWithEmailAndPasswordAsync(email, password);
+        var token       = await res.User.GetIdTokenAsync();
 
         await SendEmailVerificationAsync(token);
 
@@ -63,5 +62,9 @@ public class FirebaseAuth(IFirebaseCfg _cfg, HttpClient _httpClient) : IToolFire
     }
 
     public void SignOut()
-        => _authClient.SignOut();
+    {
+        var _authClient = _cfg.CreateAuthClient();
+
+        _authClient.SignOut();
+    }
 }
