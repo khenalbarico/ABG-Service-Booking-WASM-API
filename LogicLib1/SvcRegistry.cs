@@ -1,6 +1,5 @@
 ﻿using LogicLib1.Services.ApiRelayer;
 using LogicLib1.Services.AppAuth;
-using LogicLib1.Services.AppBooking;
 using LogicLib1.Services.AppDb;
 using LogicLib1.Services.AppSmtp;
 using Microsoft.Extensions.Configuration;
@@ -54,6 +53,5 @@ public static class SvcRegistry
         svc.AddRelaySingleton<IToolFirebaseDbOperations, FirebaseRealtimeDb1>(relayRegistry);
         svc.AddRelaySingleton<IToolEmailer, MailkitSmtpClient>(relayRegistry);
         svc.AddRelaySingleton<IToolFirebaseAuth, FirebaseAuth>(relayRegistry);
-        svc.AddRelaySingleton<IBookingCapacity, BookingCapacity>(relayRegistry);
     }
 }
