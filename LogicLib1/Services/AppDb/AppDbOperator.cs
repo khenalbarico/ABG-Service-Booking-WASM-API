@@ -3,15 +3,12 @@ using CommonLib1.Models.Client;
 using CommonLib1.Models.Schedules;
 using CommonLib1.Models.Service;
 using LogicLib1.Helpers.Schedule;
-using LogicLib1.Services.AppBooking;
 using ToolsLib1.FirebaseTools;
 using static CommonLib1.Models.Constants;
 
 namespace LogicLib1.Services.AppDb;
 
-public class AppDbOperator(
-    IToolFirebaseDbOperations _dbOperations,
-    IBookingCapacity          _bookingCapacity) : IAppDbOperator
+public class AppDbOperator(IToolFirebaseDbOperations _dbOperations) : IAppDbOperator
 {
     public async Task<ServiceCollectionResp> GetServicesAsync()
     {
@@ -33,8 +30,6 @@ public class AppDbOperator(
 
     public async Task PostClientRequestAsync(ClientRequest req)
     {
-        await _bookingCapacity.ValidateAvailabilityAsync(req);
-
         var bookingId = req.ClientInformation.ClientBookingId;
 
         await _dbOperations.PutAsync(req, "ClientRequests", bookingId);

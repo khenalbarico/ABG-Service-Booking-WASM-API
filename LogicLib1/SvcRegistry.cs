@@ -1,6 +1,7 @@
 ﻿using LogicLib1.Services.ApiRelayer;
 using LogicLib1.Services.AppAuth;
 using LogicLib1.Services.AppDb;
+using LogicLib1.Services.AppPayment;
 using LogicLib1.Services.AppSmtp;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -53,5 +54,6 @@ public static class SvcRegistry
         svc.AddRelaySingleton<IToolFirebaseDbOperations, FirebaseRealtimeDb1>(relayRegistry);
         svc.AddRelaySingleton<IToolEmailer, MailkitSmtpClient>(relayRegistry);
         svc.AddRelaySingleton<IToolFirebaseAuth, FirebaseAuth>(relayRegistry);
+        svc.AddRelaySingleton<IAppPaymentApi, AppPaymentApi>(relayRegistry);
     }
 }
