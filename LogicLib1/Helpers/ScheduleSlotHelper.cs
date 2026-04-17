@@ -23,30 +23,19 @@ public static class ScheduleSlotHelper
     {
         foreach (var entry in capacities)
         {
-            if (IsWithinSlot(serviceDate, entry.Key))
+            if (IsMatchingSlot(serviceDate, entry.Key))
                 return entry.Key;
         }
 
-        throw new InvalidOperationException($"No matching capacity slot found for {serviceDate:yyyy-MM-dd hh:mm tt}.");
+        throw new InvalidOperationException(
+            $"No matching capacity slot found for {serviceDate:yyyy-MM-dd hh:mm tt}.");
     }
 
-    private static bool IsWithinSlot(DateTime serviceDate, string slotKey)
+    private static bool IsMatchingSlot(DateTime serviceDate, string slotKey)
     {
-        var parts = slotKey.Split('-', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
-
-        if (parts.Length != 2)
+        if (!DateTime.TryParse(slotKey, CultureInfo.InvariantCulture, DateTimeStyles.None, out var slotTime))
             return false;
 
-        if (!DateTime.TryParse(parts[0], CultureInfo.InvariantCulture, DateTimeStyles.None, out var start))
-            return false;
-
-        if (!DateTime.TryParse(parts[1], CultureInfo.InvariantCulture, DateTimeStyles.None, out var end))
-            return false;
-
-        var bookingTime = serviceDate.TimeOfDay;
-        var startTime = start.TimeOfDay;
-        var endTime = end.TimeOfDay;
-
-        return bookingTime >= startTime && bookingTime < endTime;
+        return serviceDate.Hour == slotTime.Hour;
     }
 }

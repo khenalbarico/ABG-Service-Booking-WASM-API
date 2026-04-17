@@ -14,9 +14,15 @@ public interface IToolFirebaseDbOperations
         T item,
         params string[] childPaths);
 
-    Task PatchAsync<T>(
+    Task PutAsync<T>(
         T item,
         params string[] childPaths);
+
+    Task PatchNodeAsync<T>(T item, params string[] childPaths);
+
+    Task PatchFieldsAsync(
+        Dictionary<string, object?> updates,
+        params     string[]         childPaths);
 
     Task DeleteAsync(params string[] childPaths);
 }

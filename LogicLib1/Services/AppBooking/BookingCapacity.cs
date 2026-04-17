@@ -15,7 +15,7 @@ public class BookingCapacity(IToolFirebaseDbOperations _dbOperations) : IBooking
 
         foreach (var dateGroup in groupedByDate)
         {
-            var serviceDate = dateGroup.Key;
+            var serviceDate    = dateGroup.Key;
             var serviceDateKey = serviceDate.ToServiceDateKey();
 
             ValidateExclusiveFootspaPedicureWithinRequest(dateGroup, serviceDate);
@@ -31,10 +31,10 @@ public class BookingCapacity(IToolFirebaseDbOperations _dbOperations) : IBooking
 
             foreach (var bucket in requestedBuckets)
             {
-                var capacities = GetCapacities(scheduleCfg, bucket);
-                var slotKey = serviceDate.ResolveSlotKey(capacities);
+                var capacities      = GetCapacities(scheduleCfg, bucket);
+                var slotKey         = serviceDate.ResolveSlotKey(capacities);
                 var allowedCapacity = capacities[slotKey];
-                var existingCount = CountExistingBookings(existingBookings, bucket);
+                var existingCount   = CountExistingBookings(existingBookings, bucket);
 
                 if (existingCount >= allowedCapacity)
                     throw new InvalidOperationException(GetCapacityErrorMessage(bucket, serviceDate));

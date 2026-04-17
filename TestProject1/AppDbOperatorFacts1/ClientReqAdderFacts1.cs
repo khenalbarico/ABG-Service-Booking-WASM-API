@@ -25,8 +25,8 @@ public class ClientReqAdder1(ITestOutputHelper _ctx)
             [
                 new() {
                     ServiceUid = "ServiceUid",
-                    ServiceName = "Pedicure",
-                    ServiceDesign = "Complex",
+                    ServiceName = "Nails",
+                    ServiceDesign = "",
                     ServiceDetails = "Sample1",
                     ServiceCost = 1,
                     Branch = ServiceBranch.Manila,
@@ -46,5 +46,16 @@ public class ClientReqAdder1(ITestOutputHelper _ctx)
         var _sut = _ctx.Get<IAppDbOperator>();
 
         var res  = _sut.GetClientRequestsAsync();
+    }
+
+    [Fact] public async Task Patch_Client_Status()
+    {
+        var _sut      = _ctx.Get<IAppDbOperator>();
+
+        var bookingId = "PeterBookingId2";
+
+        var status    = ClientStatus.Paid;
+
+        await _sut.PatchClientStatusAsync(bookingId, status);
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Firebase.Database;
 using Firebase.Database.Query;
+using Newtonsoft.Json;
 
 namespace ToolsLib1.FirebaseTools;
 
@@ -53,11 +54,30 @@ public class FirebaseRealtimeDb1(IFirebaseCfg _cfg) : IToolFirebaseDbOperations
         return await query.PostAsync(item);
     }
 
-    public async Task PatchAsync<T>(T item, params string[] childPaths)
+    public async Task PutAsync<T>(T item, params string[] childPaths)
     {
         var query = BuildQuery(childPaths);
 
         await query.PutAsync(item);
+    }
+
+    public async Task PatchNodeAsync<T>(T item, params string[] childPaths)
+    {
+        var query = BuildQuery(childPaths);
+        var json  = JsonConvert.SerializeObject(item);
+
+        await query.PatchAsync(json);
+    }
+
+    public async Task PatchFieldsAsync(Dictionary<string, object?> updates, params string[] childPaths)
+    {
+        if (updates is null || updates.Count == 0)
+            return;
+
+        var query = BuildQuery(childPaths);
+        var json  = JsonConvert.SerializeObject(updates);
+
+        await query.PatchAsync(json);
     }
 
     public async Task DeleteAsync(params string[] childPaths)

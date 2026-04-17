@@ -5,6 +5,7 @@ using CommonLib1.Models.Service;
 using LogicLib1.Helpers.Schedule;
 using LogicLib1.Services.AppBooking;
 using ToolsLib1.FirebaseTools;
+using static CommonLib1.Models.Constants;
 
 namespace LogicLib1.Services.AppDb;
 
@@ -36,7 +37,12 @@ public class AppDbOperator(
 
         var bookingId = req.ClientInformation.ClientBookingId;
 
-        await _dbOperations.PatchAsync(req, "ClientRequests", bookingId);
+        await _dbOperations.PutAsync(req, "ClientRequests", bookingId);
+    }
+
+    public async Task PostClientApptSchedAsync(ClientRequest req)
+    {
+        var bookingId       = req.ClientInformation.ClientBookingId;
 
         var groupedServices = (req.ClientServices ?? []).GroupBy(x => x.ServiceDate);
 
@@ -56,13 +62,24 @@ public class AppDbOperator(
                 })]
             };
 
-            await _dbOperations.PatchAsync(
+            await _dbOperations.PutAsync(
                 scheduleEntry,
                 "AppointmentSchedules",
                 serviceDateKey,
                 bookingId
             );
         }
+    }
+
+    public async Task PatchClientStatusAsync(string bookingId, ClientStatus status)
+    {
+        await _dbOperations.PatchFieldsAsync(
+            new Dictionary<string, object?>
+            {
+                ["Status"] = status
+            },
+            "ClientRequests",
+            bookingId);
     }
 
     public async Task DeleteServiceAsync(string category, string serviceUid)
@@ -99,7 +116,7 @@ public class AppDbOperator(
         switch (category.Trim())
         {
             case "Nails":
-                await _dbOperations.PatchAsync(new NailsService
+                await _dbOperations.PutAsync(new NailsService
                 {
                     Uid           = service.Uid,
                     Details       = service.Details,
@@ -110,7 +127,7 @@ public class AppDbOperator(
                 break;
 
             case "Lash":
-                await _dbOperations.PatchAsync(new LashesService
+                await _dbOperations.PutAsync(new LashesService
                 {
                     Uid           = service.Uid,
                     Details       = service.Details,
@@ -121,7 +138,7 @@ public class AppDbOperator(
                 break;
 
             case "Eyebrows":
-                await _dbOperations.PatchAsync(new EyebrowsService
+                await _dbOperations.PutAsync(new EyebrowsService
                 {
                     Uid           = service.Uid,
                     Details       = service.Details,
@@ -132,7 +149,7 @@ public class AppDbOperator(
                 break;
 
             case "Footspa":
-                await _dbOperations.PatchAsync(new FootspaService
+                await _dbOperations.PutAsync(new FootspaService
                 {
                     Uid           = service.Uid,
                     Details       = service.Details,
@@ -143,7 +160,7 @@ public class AppDbOperator(
                 break;
 
             case "Pedicure":
-                await _dbOperations.PatchAsync(new PedicureService
+                await _dbOperations.PutAsync(new PedicureService
                 {
                     Uid           = service.Uid,
                     Details       = service.Details,
@@ -196,7 +213,7 @@ public class AppDbOperator(
     => await _dbOperations.GetListAsync<ClientRequest>("ClientRequests");
 
     public async Task PostScheduleCfgAsync(ScheduleCfg cfg)
-    => await _dbOperations.PatchAsync(cfg, "ScheduleConfig");
+    => await _dbOperations.PutAsync(cfg, "ScheduleConfig");
     
     public async Task<ScheduleCfg> GetScheduleCfgAsync()
     => await _dbOperations.GetAsync<ScheduleCfg>("ScheduleConfig");
