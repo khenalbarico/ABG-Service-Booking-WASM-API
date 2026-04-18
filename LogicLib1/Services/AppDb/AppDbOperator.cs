@@ -2,7 +2,7 @@
 using CommonLib1.Models.Client;
 using CommonLib1.Models.Schedules;
 using CommonLib1.Models.Service;
-using LogicLib1.Helpers.Schedule;
+using LogicLib1.Helpers;
 using ToolsLib1.FirebaseTools;
 using static CommonLib1.Models.Constants;
 
@@ -30,9 +30,13 @@ public class AppDbOperator(IToolFirebaseDbOperations _dbOperations) : IAppDbOper
 
     public async Task PostClientRequestAsync(ClientRequest req)
     {
-        var bookingId = req.ClientInformation.ClientBookingId;
+        var scheduleCfg = await GetScheduleCfgAsync();
 
-        await _dbOperations.PutAsync(req, "ClientRequests", bookingId);
+                          await ValidateClientReqQueryAsync(req, scheduleCfg);
+
+        var bookingId  = req.ClientInformation.ClientBookingId;
+
+                          await _dbOperations.PutAsync(req, "ClientRequests", bookingId);
     }
 
     public async Task PostClientApptSchedAsync(ClientRequest req)
@@ -212,5 +216,24 @@ public class AppDbOperator(IToolFirebaseDbOperations _dbOperations) : IAppDbOper
     
     public async Task<ScheduleCfg> GetScheduleCfgAsync()
     => await _dbOperations.GetAsync<ScheduleCfg>("ScheduleConfig");
-    
+
+    public async Task ValidateClientReqQueryAsync(ClientRequest req, ScheduleCfg cfg)
+    {
+        var bookingId        = req.ClientInformation.ClientBookingId;
+        var incomingServices = req.ClientServices ?? [];
+        var existingRequests = await GetClientRequestsAsync() ?? [];
+
+        var validRequests = existingRequests.GetValidRequests(
+            bookingId,
+            DateTime.Now,
+            TimeSpan.FromMinutes(2),
+            out var expiredIds);
+
+        foreach (var id in expiredIds)
+            await _dbOperations.DeleteAsync("ClientRequests", id);
+
+        incomingServices.ValidateSlots(
+            validRequests,
+            cfg);
+    }
 }
