@@ -56,20 +56,21 @@ public sealed class PaymongoQrph(IPaymongoCfg _cfg) : IToolPaymentApi
             {
                 attributes = new
                 {
-                    type = "qrph",
-                    billing = new
+                    expiry_seconds = 120,
+                    type           = "qrph",
+                    billing        = new
                     {
-                        name = $"{req.ClientInformation.FirstName} {req.ClientInformation.LastName}".Trim(),
-                        email = req.ClientInformation.Email,
-                        phone = req.ClientInformation.ContactNumber,
+                        name    = $"{req.ClientInformation.FirstName} {req.ClientInformation.LastName}".Trim(),
+                        email   = req.ClientInformation.Email,
+                        phone   = req.ClientInformation.ContactNumber,
                         address = new
                         {
-                            line1 = "N/A",
-                            line2 = "N/A",
-                            city = "N/A",
-                            state = "N/A",
+                            line1       = "N/A",
+                            line2       = "N/A",
+                            city        = "N/A",
+                            state       = "N/A",
                             postal_code = "0000",
-                            country = "PH"
+                            country     = "PH"
                         }
                     }
                 }
