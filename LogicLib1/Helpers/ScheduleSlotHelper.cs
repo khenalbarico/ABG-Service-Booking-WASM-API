@@ -87,7 +87,7 @@ public static class ScheduleSlotHelper
 
             if (existingCount + incomingCount > capacity)
                 throw new InvalidOperationException(
-                    "The date is currently on queue, please try again booking this date after 2 mins.");
+                    "The date is currently on queue, please try again booking this date after 3 mins.");
         }
     }
 

@@ -10,6 +10,8 @@ namespace LogicLib1.Services.AppDb;
 
 public class AppDbOperator(IToolFirebaseDbOperations _dbOperations) : IAppDbOperator
 {
+    static readonly SemaphoreSlim _clientReqLock = new(1, 1);
+
     public async Task<ServiceCollectionResp> GetServicesAsync()
     {
         var nails    = await _dbOperations.GetListAsync<NailsService>("Services", "Nails");
@@ -30,13 +32,22 @@ public class AppDbOperator(IToolFirebaseDbOperations _dbOperations) : IAppDbOper
 
     public async Task PostClientRequestAsync(ClientRequest req)
     {
-        var scheduleCfg = await GetScheduleCfgAsync();
+        await _clientReqLock.WaitAsync();
 
-                          await ValidateClientReqQueryAsync(req, scheduleCfg);
+        try
+        {
+            var scheduleCfg = await GetScheduleCfgAsync();
 
-        var bookingId  = req.ClientInformation.ClientBookingId;
+            await ValidateClientReqQueryAsync(req, scheduleCfg);
 
-                          await _dbOperations.PutAsync(req, "ClientRequests", bookingId);
+            var bookingId = req.ClientInformation.ClientBookingId;
+
+            await _dbOperations.PutAsync(req, "ClientRequests", bookingId);
+        }
+        finally
+        {
+            _clientReqLock.Release();
+        }
     }
 
     public async Task PostClientApptSchedAsync(ClientRequest req)
@@ -208,15 +219,6 @@ public class AppDbOperator(IToolFirebaseDbOperations _dbOperations) : IAppDbOper
         return result;
     }
 
-    public async Task<List<ClientRequest>> GetClientRequestsAsync()
-    => await _dbOperations.GetListAsync<ClientRequest>("ClientRequests");
-
-    public async Task PostScheduleCfgAsync(ScheduleCfg cfg)
-    => await _dbOperations.PutAsync(cfg, "ScheduleConfig");
-    
-    public async Task<ScheduleCfg> GetScheduleCfgAsync()
-    => await _dbOperations.GetAsync<ScheduleCfg>("ScheduleConfig");
-
     public async Task ValidateClientReqQueryAsync(ClientRequest req, ScheduleCfg cfg)
     {
         var bookingId        = req.ClientInformation.ClientBookingId;
@@ -226,7 +228,7 @@ public class AppDbOperator(IToolFirebaseDbOperations _dbOperations) : IAppDbOper
         var validRequests = existingRequests.GetValidRequests(
             bookingId,
             DateTime.Now,
-            TimeSpan.FromMinutes(2),
+            TimeSpan.FromMinutes(3),
             out var expiredIds);
 
         foreach (var id in expiredIds)
@@ -236,4 +238,15 @@ public class AppDbOperator(IToolFirebaseDbOperations _dbOperations) : IAppDbOper
             validRequests,
             cfg);
     }
+
+    public async Task<List<ClientRequest>> GetClientRequestsAsync()
+    => await _dbOperations.GetListAsync<ClientRequest>("ClientRequests");
+
+    public async Task PostScheduleCfgAsync(ScheduleCfg cfg)
+    => await _dbOperations.PutAsync(cfg, "ScheduleConfig");
+    
+    public async Task<ScheduleCfg> GetScheduleCfgAsync()
+    => await _dbOperations.GetAsync<ScheduleCfg>("ScheduleConfig");
+
+   
 }
